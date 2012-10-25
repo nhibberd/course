@@ -13,19 +13,28 @@ class Misty m where
   -- Relative Difficulty: 3
   -- (use banana and unicorn)
   furry' :: (a -> b) -> m a -> m b
-  furry' = error "todo"
+  furry' f = banana (unicorn . f)
+    -- f :: a -> b
+    -- x :: m a
+    -- a :: a
+    -- ? :: m b
 
 -- Exercise 5
 -- Relative Difficulty: 2
 instance Misty List where
-  banana = error "todo"
-  unicorn = error "todo"
+  -- (a -> List b) -> List a -> List b
+  banana = flatMap
+  -- a -> List a
+  unicorn a = a :| Nil
 
 -- Exercise 6
 -- Relative Difficulty: 2
 instance Misty Optional where
-  banana = error "todo"
-  unicorn = error "todo"
+  -- (a -> Optional b) -> Optional a -> Optional b
+  banana _ Empty = Empty
+  banana f (Full a) = f a
+  -- a -> Optional a
+  unicorn = Full
 
 -- Exercise 7
 -- Relative Difficulty: 3
@@ -33,20 +42,48 @@ instance Misty Parser where
   banana = error "todo"
   unicorn = error "todo"
 
+instance Misty ((->) t) where
+  -- (a -> m b) -> m a -> m b
+  -- (a -> ((->) t b)) -> ((->) t a) -> ((->) t b)
+  --     (a -> t -> b) -> (t -> a) -> t -> b
+  banana f                g           t =  f (g t) t
+  -- a -> ((->) t a)
+  -- a -> (t -> a)
+  -- a -> t -> a
+  unicorn a _ = a
+
 -- Exercise 8
 -- Relative Difficulty: 2
 jellybean :: Misty m => m (m a) -> m a
-jellybean = error "todo"
+jellybean  = banana id
 
 -- Exercise 9
 -- Relative Difficulty: 3
 sausage :: Misty m => [m a] -> m [a]
-sausage = error "todo"
+sausage [] = unicorn []
+sausage (h:t) = banana (\a -> 
+                banana (\as -> 
+                unicorn ( a:as )) 
+                  (sausage t))
+                    h
+
+sausage2 :: Monad m => [m a] -> m [a]                    
+sausage2 [] = return []
+sausage2 (h:t) = h          >>= \a -> 
+                 sausage2 t >>= \as -> 
+                 return (a:as)
+
+sausage3 :: Monad m => [m a] -> m [a]                    
+sausage3 [] = return []
+sausage3 (h:t) = do a  <- h
+                    as <- sausage3 t
+                    return (a:as)
+
 
 -- Exercise 10
 -- Relative Difficulty: 3
 moppy :: Misty m => (a -> m b) -> [a] -> m [b]
-moppy = error "todo"
+moppy f = sausage . furry' f
 
 -- Exercise 11
 -- Relative Difficulty: 4
@@ -61,7 +98,7 @@ filtering = error "todo"
 -- Exercise 13
 -- Relative Difficulty: 10
 apple :: Misty m => m (a -> b) -> m a -> m b
-apple = error "todo"
+apple f a = banana (\k -> furry' k a) f
 
 -- Exercise 14
 -- Relative Difficulty: 6

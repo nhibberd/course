@@ -1,18 +1,26 @@
 module L01.Optional where
 
---  class Optional<A> {
---    Optional(A a) {} // Full
+--  class Optional<a> {
+--    Optional(a a) {} // Full
 --    Optional() {} // Empty
 --  }
 data Optional a = Full a | Empty deriving (Eq, Show)
 
+-- data Type <0..n typevars> =
+  -- Constructor1 <0..C1args> |
+  -- Constructor2 <0..C2args> |
+  -- ...
+  -- deriving (optional)
+
+-- (a -> b) -> (F a -> F b)
 mapOptional :: (a -> b) -> Optional a -> Optional b
 mapOptional _ Empty    = Empty
 mapOptional f (Full a) = Full (f a)
 
-bindOptional :: Optional a -> (a -> Optional b) -> Optional b
-bindOptional Empty _    = Empty
-bindOptional (Full a) f = f a
+-- (a -> F b) -> (F a -> F b)
+bindOptional :: (a -> Optional b) -> Optional a -> Optional b
+bindOptional _ Empty    = Empty
+bindOptional f (Full a) = f a
 
 (??) :: Optional a -> a -> a
 Empty ?? d  = d
