@@ -1,3 +1,21 @@
+module TicTacToe
+(
+  Board
+, FinishedBoard
+, Position(..)
+, BoardLike(..)
+, moveEmpty
+, MoveResult(..)
+, Draw(..)
+, moveBoard
+, wasX
+, takeBackBoard
+, takeBackFinished
+, updateAt
+, line
+, whoWon
+) where
+
 import Data.List
 
 data Player =
