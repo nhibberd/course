@@ -22,18 +22,24 @@ newtype State s a =
 -- Relative Difficulty: 2
 -- Implement the `Fluffy` instance for `State s`.
 instance Fluffy (State s) where
-  furry =
-    error "todo"
+  -- furry :: (a -> b) -> f a       -> f b
+  -- furry :: (a -> b) -> State s a -> State s b
+  furry f (State g) =
+    State (\s -> let (a, s') = g s
+                 in (f a, s'))
 
 -- Exercise 2
 -- Relative Difficulty: 3
 -- Implement the `Misty` instance for `State s`.
 -- Make sure the state value is passed through in `banana`.
 instance Misty (State s) where
-  banana =
-    error "todo"
-  unicorn =
-    error "todo"
+-- banana :: ( a -> State s b ) -> State s a -> State s b
+-- Unicorn :: a -> State s a
+  banana f (State g) =
+    State (\s -> let (a, s') = g s
+                 in runState (f a) s')
+  unicorn a =
+    State (\s -> (a, s))
 
 -- Exercise 3
 -- Relative Difficulty: 1
@@ -42,8 +48,9 @@ exec ::
   State s a
   -> s
   -> s
-exec =
-  error "todo"
+exec (State g) s =
+  let (_, s') = g s
+  in s'
 
 -- Exercise 4
 -- Relative Difficulty: 1
@@ -52,16 +59,16 @@ eval ::
   State s a
   -> s
   -> a
-eval =
-  error "todo"
+eval (State g) s =
+  let (a, _) = g s
+  in a
 
 -- Exercise 5
 -- Relative Difficulty: 2
 -- A `State` where the state also distributes into the produced value.
 get ::
   State s s
-get =
-  error "todo"
+get = State (\s -> (s,s))
 
 -- Exercise 6
 -- Relative Difficulty: 2
@@ -69,8 +76,8 @@ get =
 put ::
   s
   -> State s ()
-put =
-  error "todo"
+put s =
+  State (\_ ->  ((), s))
 
 -- Exercise 7
 -- Relative Difficulty: 5
@@ -87,8 +94,10 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM =
-  error "todo"
+findM _ Nil =
+  unicorn Empty
+findM p (h:|t) =
+  banana (\b -> if b then unicorn (Full h) else findM p t) (p h)
 
 -- Exercise 8
 -- Relative Difficulty: 4
@@ -99,8 +108,9 @@ firstRepeat ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat =
-  error "todo"
+firstRepeat x =
+  eval (findM (\a -> State (\s -> (S.member a s, S.insert a s))) x) S.empty
+
 
 -- Exercise 9
 -- Relative Difficulty: 5
@@ -116,8 +126,10 @@ filterM ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filterM =
-  error "todo"
+filterM _ Nil =
+  unicorn Nil
+filterM f (h:|t) =
+  banana (\b -> furry' (if b then (h:|) else id) (filterM f t)) (f h)
 
 -- Exercise 10
 -- Relative Difficulty: 4
