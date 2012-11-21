@@ -17,8 +17,8 @@ class Misty m where
 -- Exercise 5
 -- Relative Difficulty: 1
 instance Misty Id where
-  banana = error "todo"
-  unicorn = error "todo"
+  banana = flip bindId
+  unicorn = Id
 
 -- Exercise 6
 -- Relative Difficulty: 2
