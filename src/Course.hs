@@ -6,6 +6,7 @@ module Course
 , module L03.Fluffy
 , module L03.Misty
 , module L03.State
+, module L03.StateT
 , module L04.ListZipper
 , module L04.Testing
 , module L05.Person
@@ -19,7 +20,7 @@ module Course
 , module L08.MetricSpace
 , module L08.BKTree
 , module L09.Compose
-, module L11.Cheque
+, module L10.Cheque
 ) where
 
 import L01.Optional
@@ -28,6 +29,7 @@ import L02.List
 import L03.Fluffy
 import L03.Misty
 import L03.State
+import L03.StateT
 import L04.ListZipper
 import L04.Testing hiding (tests)
 import L05.Person
@@ -41,4 +43,4 @@ import L08.EditDistance
 import L08.MetricSpace
 import L08.BKTree
 import L09.Compose
-import L11.Cheque
+import L10.Cheque
