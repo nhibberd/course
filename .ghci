@@ -5,8 +5,3 @@
 :set -Wall
 :set -fno-warn-type-defaults
 :set -fno-warn-unused-imports
-<<<<<<< HEAD
-=======
-:set -fno-warn-unused-binds
-:set -fno-warn-unused-do-bind
->>>>>>> origin/nick

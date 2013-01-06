@@ -2,6 +2,7 @@
 --   Replace the function bodies (error "todo") with an appropriate solution.
 -- + These exercises may be done in any order, however:
 --   Exercises are generally increasing in difficulty, though some people may find later exercise easier.
+-- + Note the existence of the library function max :: Int -> Int -> Int which will help you with Exercise 9.
 -- + Bonus for using the provided functions or for using one exercise solution to help solve another.
 -- + Approach with your best available intuition; just dive in and do what you can!
 
@@ -10,7 +11,6 @@
 module L02.List where
 
 import Test.QuickCheck
-import Control.Applicative
 
 -- BEGIN Helper functions and data types
 
@@ -32,7 +32,6 @@ foldLeft :: (b -> a -> b) -> b -> List a -> b
 foldLeft _ b Nil      = b
 foldLeft f b (h :| t) = let b' = f b h in b' `seq` foldLeft f b' t
 
-<<<<<<< HEAD
 unfoldL :: (b -> Maybe (a, b)) -> b -> List a
 unfoldL f b =
   case f b of
@@ -43,8 +42,6 @@ toList :: [a] -> List a
 toList = unfoldL (\q -> case q of
                           [] -> Nothing
                           (h:t) -> Just (h, t))
-=======
->>>>>>> origin/nick
 -- END Helper functions and data types
 
 -- BEGIN Exercises
@@ -56,7 +53,6 @@ toList = unfoldL (\q -> case q of
 -- Elegance: 0.5 marks
 -- Total: 3
 headOr :: List a -> a -> a
-<<<<<<< HEAD
 headOr Nil a = a
 headOr (x :| _) _ = x
 
@@ -66,10 +62,6 @@ x :| y
 -}
 
 
-=======
-headOr Nil a    = a
-headOr (h:|_) _ = h
->>>>>>> origin/nick
 
 -- Exercise 2
 -- Relative Difficulty: 2
@@ -78,15 +70,11 @@ headOr (h:|_) _ = h
 -- Elegance: 0.5 marks
 -- Total: 4
 suum :: List Int -> Int
-<<<<<<< HEAD
 suum Nil = 0
 suum (a :| b) = a + suum b
 
 suuum :: List Int -> Int
 suuum = foldLeft (+) 0
-=======
-suum = foldLeft (+) 0
->>>>>>> origin/nick
 
 -- Exercise 3
 -- Relative Difficulty: 2
@@ -96,7 +84,6 @@ suum = foldLeft (+) 0
 -- Total: 4
 len :: List a -> Int
 len = foldLeft (const . succ) 0
-<<<<<<< HEAD
 
 
 {-
@@ -112,8 +99,6 @@ B foldLeft(B => Int => B f, B b, List<Int> x) {
 interface Func<T, U> { T apply(U u); }
 <A, B, C> Func<A, C> compose(Func<B, C> f, Func<A, B> g) 
 -}
-=======
->>>>>>> origin/nick
 
 -- Exercise 4
 -- Relative Difficulty: 5
@@ -122,7 +107,6 @@ interface Func<T, U> { T apply(U u); }
 -- Elegance: 1.5 marks
 -- Total: 7
 maap :: (a -> b) -> List a -> List b
-<<<<<<< HEAD
 maap _ Nil = Nil
 maap f (h :| t) = f h :| maap f t
 
@@ -131,9 +115,6 @@ maaap f = foldRight ((:|) . f)     Nil
 --        foldRight ((:|) . ($ q)) Nil x
 
 -- maap t a = 
-=======
-maap f = foldRight (\a b -> f a :| b) Nil
->>>>>>> origin/nick
 
 -- Exercise 5
 -- Relative Difficulty: 5
@@ -142,11 +123,7 @@ maap f = foldRight (\a b -> f a :| b) Nil
 -- Elegance: 1 mark
 -- Total: 7
 fiilter :: (a -> Bool) -> List a -> List a
-<<<<<<< HEAD
 fiilter f = foldRight (\a -> if f a then (:|) a else id) Nil
-=======
-fiilter f = foldRight (\a -> if f a then (a:|) else id) Nil
->>>>>>> origin/nick
 
 -- Exercise 6
 -- Relative Difficulty: 5
@@ -173,12 +150,8 @@ flatten = foldRight append Nil
 -- Elegance: 1.5 mark
 -- Total: 8
 flatMap :: (a -> List b) -> List a -> List b
-<<<<<<< HEAD
 flatMap f = foldRight (append . f) Nil
 --flatMap f = flatten . maap f
-=======
-flatMap f = flatten . maap f
->>>>>>> origin/nick
 
 -- Exercise 9
 -- Relative Difficulty: 8
@@ -187,11 +160,7 @@ flatMap f = flatten . maap f
 -- Elegance: 3.5 marks
 -- Total: 9
 seqf :: List (a -> b) -> a -> List b
-<<<<<<< HEAD
 seqf x q = foldRight ((:|) . ($ q)) Nil x
-=======
-seqf = foldRight (liftA2 (:|)) (pure Nil)
->>>>>>> origin/nick
 
 -- Exercise 10
 -- Relative Difficulty: 10
@@ -200,7 +169,6 @@ seqf = foldRight (liftA2 (:|)) (pure Nil)
 -- Elegance: 2.5 marks
 -- Total: 10
 rev :: List a -> List a
-<<<<<<< HEAD
 rev Nil = Nil
 rev (h :| t) = rev t `append` (h :| Nil)
 
@@ -213,9 +181,6 @@ revv x = rev2 x Nil
 
 revvv :: List a -> List a
 revvv = foldLeft (flip (:|)) Nil
-=======
-rev = foldLeft (flip (:|)) Nil
->>>>>>> origin/nick
 
 -- Exercise 10.1
 -- How to produce arbitrary instances of List

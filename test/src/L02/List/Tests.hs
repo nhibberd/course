@@ -1,5 +1,6 @@
 module L02.List.Tests where
 
+import Prelude hiding (sum, length, map, filter, maximum, reverse)
 import Test.Framework
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import L02.List
@@ -30,7 +31,7 @@ test =
     , testProperty "flatMap obeys law of associativity" prop_flatMap_associativity
     , testProperty "flatMap with id flattens" prop_flatMap_id_flattens
     , testProperty "flatMap obeys functor relationship" prop_flatMap_functor
-    , testProperty "rev with single value" prop_rev_single_value
+    , testProperty "reverse with single value" prop_rev_single_value
     , testProperty "appending reverse is equal to reversing appended" prop_rev_append
     ]
 

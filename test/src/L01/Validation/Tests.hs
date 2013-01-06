@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 module L01.Validation.Tests where
 
 import Test.Framework
