@@ -70,8 +70,8 @@ headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo"
+headOr _ (h :. _) = h
+headOr a Nil = a
 
 -- | The product of the elements of a list.
 --
@@ -83,8 +83,9 @@ headOr =
 product ::
   List Int
   -> Int
-product =
-  error "todo"
+product (h :. Nil) = h
+product (h :. t) = h * product t
+product Nil = 0
 
 -- | Sum the elements of the list.
 --
@@ -98,8 +99,10 @@ product =
 sum ::
   List Int
   -> Int
-sum =
-  error "todo"
+sum x = foldLeft (+) 0 x
+--sum (h :. t) = h + sum t
+--sum Nil = 0
+  
 
 -- | Return the length of the list.
 --
@@ -110,8 +113,9 @@ sum =
 length ::
   List a
   -> Int
-length =
-  error "todo"
+length = foldLeft (\n _ -> n + 1) 0
+--length (_:.t) = 1 + length t
+--length Nil = 0
 
 -- | Map the given function on each element of the list.
 --
@@ -125,8 +129,11 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map =
-  error "todo"
+
+-- foldRight :: (a -> b -> b) -> b -> List a -> b
+map f list = foldRight (\a b -> (:.) (f a) b) Nil list
+-- map f (h:.t) = f h :. map f t
+-- map _ Nil = Nil
 
 -- | Return elements satisfying the given predicate.
 --
@@ -139,12 +146,15 @@ map =
 --
 -- prop> filter (const False) x == Nil
 filter ::
-  (a -> Bool)
+  (a -> Bool) 
   -> List a
   -> List a
-filter =
-  error "todo"
-
+filter _ Nil = Nil
+filter f (h:.t) = 
+    case f h of 
+      True -> h :. filter f t
+      False -> filter f t
+        
 -- | Append two lists to a new list.
 --
 -- >>> (1 :. 2 :. 3 :. Nil) ++ (4 :. 5 :. 6 :. Nil)
@@ -161,8 +171,11 @@ filter =
   List a
   -> List a
   -> List a
-(++) =
-  error "todo"
+(++) Nil Nil = Nil
+(++) Nil x = x
+(++) x Nil = x
+(++) (a:.b) x = a :. (++) b x
+
 
 infixr 5 ++
 
@@ -179,8 +192,9 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten =
-  error "todo"
+-- foldRight :: (a -> b -> b) -> b -> List a -> b
+-- foldRight ::((List a) -> List b -> List b) -> List b -> List (List a) -> List b
+flatten = foldRight (++) Nil
 
 -- | Map a function then flatten to a list.
 --
@@ -196,8 +210,7 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap =
-  error "todo"
+flatMap f = flatten . map f
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -224,8 +237,15 @@ flatMap =
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional =
-  error "todo"
+seqOptional Nil = Full Nil
+seqOptional (h:.t) = 
+  case h of
+    Full a ->  
+          case seqOptional t of
+            Full x -> Full (a :. x ) 
+            Empty -> Empty
+    Empty -> Empty
+
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -247,8 +267,11 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo"
+find _ Nil = Empty
+find f (h:.t) =
+  case f h of
+    True -> Full h
+    False -> find f t
 
 -- | Reverse a list.
 --
@@ -262,7 +285,9 @@ reverse ::
   List a
   -> List a
 reverse =
-  error "todo"
+  foldLeft (\b a -> a :. b) Nil
+
+-- foldLeft :: (b -> a -> b) -> b -> List a -> b
 
 -- | Do anything other than reverse a list.
 --
@@ -275,8 +300,7 @@ reverse =
 notReverse ::
   List a
   -> List a
-notReverse =
-  error "todo"
+notReverse = error ("error")
 
 hlist ::
   List a
