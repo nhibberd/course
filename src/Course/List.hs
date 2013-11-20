@@ -154,6 +154,11 @@ filter f (h:.t) =
     case f h of 
       True -> h :. filter f t
       False -> filter f t
+
+filterx :: (a -> Bool) -> List a -> List a
+--filterx f = foldRight (\x acc -> if f x then x :. acc else acc) Nil
+filterx f = foldRight (\x -> if f x then (x :.) else id) Nil
+
         
 -- | Append two lists to a new list.
 --
@@ -171,10 +176,11 @@ filter f (h:.t) =
   List a
   -> List a
   -> List a
-(++) Nil Nil = Nil
-(++) Nil x = x
-(++) x Nil = x
-(++) (a:.b) x = a :. (++) b x
+(++) = flip $ foldRight (:.)
+-- (++) Nil Nil = Nil
+-- (++) Nil x = x
+-- (++) x Nil = x
+-- (++) (a:.b) x = a :. (++) b x
 
 
 infixr 5 ++
@@ -194,6 +200,7 @@ flatten ::
   -> List a
 -- foldRight :: (a -> b -> b) -> b -> List a -> b
 -- foldRight ::((List a) -> List b -> List b) -> List b -> List (List a) -> List b
+--flatMap ::  (a -> List b)  -> List a  -> List b
 flatten = foldRight (++) Nil
 
 -- | Map a function then flatten to a list.
@@ -246,6 +253,7 @@ seqOptional (h:.t) =
             Empty -> Empty
     Empty -> Empty
 
+seqOptional' = foldRight (\h t -> bindOptional (\a -> mapOptional (\q -> a :. q) t) h) (Full Nil)
 
 -- | Find the first element in the list matching the predicate.
 --
