@@ -1,4 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Course.Apply where
 
@@ -22,16 +23,19 @@ infixl 4 <*>
 -- >>> Id (+10) <*> Id 8
 -- Id 18
 instance Apply Id where
-  (<*>) =
-    error "todo"
+--(<*>) :: f (a -> b)-> f a -> f b
+  (<*>) (Id f) (Id a) = Id (f a)
 
 -- | Implement @Apply@ instance for @List@.
 --
 -- >>> (+1) :. (*2) :. Nil <*> 1 :. 2 :. 3 :. Nil
 -- [2,3,4,2,4,6]
 instance Apply List where
-  (<*>) =
-    error "todo"
+--(<*>) :: List (a -> b)-> List a -> List b
+  (<*>) k = foldRight (\el acc ->
+                        let b = map (\f -> f el) k 
+                        in b ++ acc 
+                      ) Nil
 
 -- | Implement @Apply@ instance for @Optional@.
 --
@@ -44,8 +48,10 @@ instance Apply List where
 -- >>> Full (+8) <*> Empty
 -- Empty
 instance Apply Optional where
-  (<*>) =
-    error "todo"
+--(<*>) :: Optional (a -> b)-> Optional a -> Optional b
+  (<*>) (Full f) (Full a) = Full (f a)
+  (<*>) Empty _ = Empty
+  (<*>) _ Empty = Empty
 
 -- | Implement @Apply@ instance for reader.
 --
@@ -64,9 +70,9 @@ instance Apply Optional where
 -- >>> ((*) <*> (+2)) 3
 -- 15
 instance Apply ((->) t) where
-  (<*>) =
-    error "todo"
-
+--(<*>) :: (t -> a -> b) -> (t -> a) -> t -> b
+  (<*>) f ta t = f t (ta t)
+ 
 -- | Apply a binary function in the environment.
 --
 -- >>> lift2 (+) (Id 7) (Id 8)
@@ -92,8 +98,9 @@ lift2 ::
   -> f a
   -> f b
   -> f c
-lift2 =
-  error "todo"
+--(<*>) :: f (b -> c) -> f b -> f c
+-- apply then fmap
+lift2 f a = (<*>) (f <$> a)
 
 -- | Apply a ternary function in the Monad environment.
 --
@@ -124,8 +131,9 @@ lift3 ::
   -> f b
   -> f c
   -> f d
-lift3 =
-  error "todo"
+--(<$>) :: (a -> b) -> f a -> f b
+--(<*>) :: f (c -> d) -> f c -> f d
+lift3 f a b = (<*>) (lift2 f a b)
 
 -- | Apply a quaternary function in the environment.
 --
@@ -157,8 +165,9 @@ lift4 ::
   -> f c
   -> f d
   -> f e
-lift4 =
-  error "todo"
+--(<$>) :: (a -> b) -> f a -> f b
+--(<*>) :: f (c -> d) -> f c -> f d
+lift4 f a b c = (<*>) (lift3 f a b c)
 
 -- | Sequence, discarding the value of the first argument.
 --
@@ -176,6 +185,8 @@ lift4 =
   f a
   -> f b
   -> f b
+--(<$>) :: (a -> b) -> f a -> f b
+--(<*>) :: f (a -> b) -> f a -> f b
 (*>) =
   error "todo"
 
