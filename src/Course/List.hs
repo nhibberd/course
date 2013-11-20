@@ -252,7 +252,7 @@ seqOptional (h:.t) =
             Full x -> Full (a :. x ) 
             Empty -> Empty
     Empty -> Empty
-
+seqOptional' ::  List (Optional a) -> Optional (List a)
 seqOptional' = foldRight (\h t -> bindOptional (\a -> mapOptional (\q -> a :. q) t) h) (Full Nil)
 
 -- | Find the first element in the list matching the predicate.
@@ -293,7 +293,7 @@ reverse ::
   List a
   -> List a
 reverse =
-  foldLeft (\b a -> a :. b) Nil
+  foldLeft (flip (:.)) Nil
 
 -- foldLeft :: (b -> a -> b) -> b -> List a -> b
 
