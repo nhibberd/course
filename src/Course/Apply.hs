@@ -18,6 +18,7 @@ class Functor f => Apply f where
 
 infixl 4 <*>
 
+data Hole = Hole
 -- | Implement @Apply@ instance for @Id@.
 --
 -- >>> Id (+10) <*> Id 8
@@ -32,10 +33,14 @@ instance Apply Id where
 -- [2,3,4,2,4,6]
 instance Apply List where
 --(<*>) :: List (a -> b)-> List a -> List b
+{-  
   (<*>) k = foldRight (\el acc ->
                         let b = map (\f -> f el) k 
                         in b ++ acc 
                       ) Nil
+-}
+--fs <*> ks = flatMap (\f -> f `map` ks) fs
+  fs <*> as = flatMap (`map` as) fs
 
 -- | Implement @Apply@ instance for @Optional@.
 --
@@ -49,10 +54,8 @@ instance Apply List where
 -- Empty
 instance Apply Optional where
 --(<*>) :: Optional (a -> b)-> Optional a -> Optional b
-  (<*>) (Full f) (Full a) = Full (f a)
-  (<*>) Empty _ = Empty
-  (<*>) _ Empty = Empty
-
+  (<*>) f a = 
+    bindOptional (`mapOptional` a) f
 -- | Implement @Apply@ instance for reader.
 --
 -- >>> ((+) <*> (+10)) 3
@@ -133,7 +136,7 @@ lift3 ::
   -> f d
 --(<$>) :: (a -> b) -> f a -> f b
 --(<*>) :: f (c -> d) -> f c -> f d
-lift3 f a b = (<*>) (lift2 f a b)
+lift3 f a = (<*>) . lift2 f a 
 
 -- | Apply a quaternary function in the environment.
 --
@@ -185,10 +188,11 @@ lift4 f a b c = (<*>) (lift3 f a b c)
   f a
   -> f b
   -> f b
---(<$>) :: (a -> b) -> f a -> f b
---(<*>) :: f (a -> b) -> f a -> f b
-(*>) =
-  error "todo"
+--(<$>) :: (a -> b) -> f a -> f b               -- fmap
+--(<*>) :: f (a -> b) -> f a -> f b             -- apply
+--lift2 :: (a -> b -> c) -> f a -> f b -> f c
+--(*>) xs ys = ( \_ -> \x -> x ) <$> xs <*> ys
+(*>) xs ys = flip const <$> xs <*> ys
 
 -- | Sequence, discarding the value of the second argument.
 --
@@ -206,8 +210,7 @@ lift4 f a b c = (<*>) (lift3 f a b c)
   f b
   -> f a
   -> f b
-(<*) =
-  error "todo"
+(<*) b a = const <$> b <*> a
 
 -----------------------
 -- SUPPORT LIBRARIES --
