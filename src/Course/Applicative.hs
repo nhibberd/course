@@ -33,36 +33,31 @@ class Apply f => Applicative f where
   (a -> b)
   -> f a
   -> f b
-(<$>) =
-  error "todo"
+(<$>) = (<$>)
 
 -- | Insert into the Id monad.
 --
 -- prop> pure x == Id x
 instance Applicative Id where
-  pure =
-    error "todo"
+  pure = Id
 
 -- | Insert into a List.
 --
 -- prop> pure x == x :. Nil
 instance Applicative List where
-  pure =
-    error "todo"
+  pure = flip (:.) Nil
 
 -- | Insert into an Optional.
 --
 -- prop> pure x == Full x
 instance Applicative Optional where
-  pure =
-    error "todo"
+  pure = Full
 
 -- | Insert into a constant function.
 --
 -- prop> pure x y == x
 instance Applicative ((->) t) where
-  pure =
-    error "todo"
+  pure x _ = x
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -84,8 +79,13 @@ sequence ::
   Applicative f =>
   List (f a)
   -> f (List a)
-sequence =
-  error "todo"
+--(<$>) :: (a -> b) -> f a -> f b               -- fmap
+--(<*>) :: f (a -> b) -> f a -> f b             -- apply
+--lift2 :: (a -> b -> c) -> f a -> f b -> f c
+--(*>) xs ys = ( \_ -> \x -> x ) <$> xs <*> ys
+--(<*) xs ys = 
+sequence (h:.t) = lift2 (:.) h (sequence t)
+sequence Nil = pure Nil
 
 -- | Replicate an effect a given number of times.
 --
@@ -105,8 +105,13 @@ replicateA ::
   Int
   -> f a
   -> f (List a)
-replicateA =
-  error "todo"
+replicateA i fa = 
+  let replicateA' acc zz = 
+        case zz of
+          0 -> acc
+          nn -> replicateA' (lift2 (:.) fa acc) (nn - 1) 
+  in replicateA' (pure Nil) i
+
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -129,8 +134,7 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo"
+filtering f xs = foldRight (\x acc -> lift2 (\a b -> if a then x :. b else b) (f x) acc) (pure Nil) xs 
 
 -----------------------
 -- SUPPORT LIBRARIES --
