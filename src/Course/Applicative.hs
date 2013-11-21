@@ -111,6 +111,7 @@ replicateA i fa =
           nn -> replicateA' (lift2 (:.) fa acc) (nn - 1) 
   in replicateA' (pure Nil) i
 
+replicateA'' n x = sequence (replicate n x)
 
 -- | Filter a list with a predicate that produces an effect.
 --
