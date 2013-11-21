@@ -68,5 +68,10 @@ cojoin ::
   Extend f =>
   f a
   -> f (f a)
-cojoin =
-  error "todo"
+--(=<<) :: (a -> f b) -> f a -> f b
+--(<$>) :: (a -> b) -> f a -> f b               -- fmap
+--(<*>) :: f (a -> b) -> f a -> f b             -- apply
+--lift2 :: (a -> b -> c) -> f a -> f b -> f c
+--join :: f (f b) -> f b
+--(<<=) :: (f a -> b) -> f a -> f b 
+cojoin = (<<=) id
