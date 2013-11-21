@@ -59,8 +59,8 @@ infixr 1 =<<
   f (a -> b)
   -> f a
   -> f b
-(<*>) =
-  error "todo"
+--(=<<) :: (a -> f b) -> f a -> f b
+(<*>) = (<*>)
 
 infixl 4 <*>
 
@@ -69,32 +69,39 @@ infixl 4 <*>
 -- >>> (\x -> Id(x+1)) =<< Id 2
 -- Id 3
 instance Bind Id where
-  (=<<) =
-    error "todo"
+--(=<<) :: (a -> f b) -> f a -> f b
+  (=<<) f (Id a) = f a
 
 -- | Binds a function on a List.
 --
 -- >>> (\n -> n :. n :. Nil) =<< (1 :. 2 :. 3 :. Nil)
 -- [1,1,2,2,3,3]
 instance Bind List where
-  (=<<) =
-    error "todo"
+--(=<<) :: (a -> List b) -> List a -> List b
+  (=<<) f l = 
+    case l of
+      Nil -> Nil
+      (h:.t) -> f h ++ (f =<< t)
 
 -- | Binds a function on an Optional.
 --
 -- >>> (\n -> Full (n + n)) =<< Full 7
 -- Full 14
 instance Bind Optional where
-  (=<<) =
-    error "todo"
+--(=<<) :: (a -> Optional b) -> Optional a -> Optional b
+  (=<<) f o =
+    case o of
+      Empty -> Empty
+      Full a -> f a
 
 -- | Binds a function on the reader ((->) t).
 --
 -- >>> ((*) =<< (+10)) 7
 -- 119
 instance Bind ((->) t) where
-  (=<<) =
-    error "todo"
+--(=<<) :: ( (a -> ((->) t) b) ) -> ( ((->) t) a ) -> ( ((->) t) b )
+--(=<<) :: ( (a -> t -> b ) -> ( t -> a ) -> t -> b 
+  (=<<) f ta t = f (ta t) t
 
 -- | Flattens a combined structure to a single structure.
 --
@@ -113,8 +120,13 @@ join ::
   Bind f =>
   f (f a)
   -> f a
-join =
-  error "todo"
+--(=<<) :: (a -> f b) -> f a -> f b
+--(<$>) :: (a -> b) -> f a -> f b               -- fmap
+--(<*>) :: f (a -> b) -> f a -> f b             -- apply
+--lift2 :: (a -> b -> c) -> f a -> f b -> f c
+-- join :: f (f b) -> f b
+join = (=<<) id
+
 
 -- | Implement a flipped version of @(=<<)@, however, use only
 -- @join@ and @(<$>)@.
@@ -123,8 +135,10 @@ join =
   f a
   -> (a -> f b)
   -> f b
-(>>=) =
-  error "todo"
+--(<$>) :: (a -> b) -> f a -> f b               -- fmap
+-- join :: f (f b) -> f b
+-- >>= :: f a -> (a -> f b) -> fb
+(>>=) fa f = join (f <$> fa)
 
 infixl 1 >>=
 
@@ -135,8 +149,8 @@ infixl 1 >>=
   -> (a -> f b)
   -> a
   -> f c
-(<=<) =
-  error "todo"
+--(=<<) :: (a -> f b) -> f a -> f b
+(<=<) xs ys a = (ys a) >>= xs
 
 infixr 1 <=<
 
