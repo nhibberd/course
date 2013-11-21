@@ -82,10 +82,9 @@ sequence ::
 --(<$>) :: (a -> b) -> f a -> f b               -- fmap
 --(<*>) :: f (a -> b) -> f a -> f b             -- apply
 --lift2 :: (a -> b -> c) -> f a -> f b -> f c
---(*>) xs ys = ( \_ -> \x -> x ) <$> xs <*> ys
---(<*) xs ys = 
 sequence (h:.t) = lift2 (:.) h (sequence t)
 sequence Nil = pure Nil
+--sequence' = foldRight (lift2 (:.)) (pure Nil)
 
 -- | Replicate an effect a given number of times.
 --
