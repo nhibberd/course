@@ -77,6 +77,7 @@ instance Functor ((->) t) where
   -> f a
 --f  :: (a -> b) -> f a -> f b
 (<$) a b = (\_ -> a ) <$> b
+-- (<$>) = (<$>) . const
 
 -----------------------
 -- SUPPORT LIBRARIES --
