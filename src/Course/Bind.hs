@@ -82,6 +82,7 @@ instance Bind List where
     case l of
       Nil -> Nil
       (h:.t) -> f h ++ (f =<< t)
+-- flatMap
 
 -- | Binds a function on an Optional.
 --
