@@ -82,8 +82,7 @@ data Parser a = P {
 valueParser ::
   a
   -> Parser a
-valueParser =
-  error "todo"
+valueParser a = P(\x -> Result x a)
 
 -- | Return a parser that always fails with the given error.
 --
@@ -91,8 +90,7 @@ valueParser =
 -- True
 failed ::
   Parser a
-failed =
-  error "todo"
+failed = P(\_ -> Failed)
 
 -- | Return a parser that succeeds with a character off the input or fails with an error if the input is empty.
 --
@@ -103,8 +101,13 @@ failed =
 -- True
 character ::
   Parser Char
-character =
-  error "todo"
+character = 
+  P(\a -> 
+    case a of 
+      Nil -> Failed
+      (h:.t) -> Result t h
+   )
+
 
 -- | Return a parser that puts its input into the given parser and
 --
@@ -133,8 +136,8 @@ bindParser ::
   (a -> Parser b)
   -> Parser a
   -> Parser b
-bindParser =
-  error "todo"
+bindParser f p = 
+  P(\x -> withResultInput (\y z -> parse (f z) y) (parse p x))
 
 fbindParser ::
   Parser a
@@ -161,8 +164,8 @@ fbindParser =
   Parser a
   -> Parser b
   -> Parser b
-(>>>) =
-  error "todo"
+--(>>>) a b = P(\x -> withResultInput (\z _ -> parse b z) (parse a x))
+(>>>) a b = bindParser (\_ -> b) a
 
 -- | Return a parser that tries the first parser for a successful value.
 --
@@ -185,8 +188,14 @@ fbindParser =
   Parser a
   -> Parser a
   -> Parser a
-(|||) =
-  error "todo"
+(|||) a b = 
+  P(\x ->
+    case parse a x of
+      (Result i aa) -> Result i aa
+      _ -> parse b x
+  )
+
+  --P(\x -> withResultInput (\y z -> Result y z) (parse a x))
 
 infixl 3 |||
 
@@ -205,8 +214,11 @@ infixl 3 |||
 list ::
   Parser a
   -> Parser (List a)
-list =
-  error "todo"
+list a = (many1 a) ||| (valueParser (Nil))
+
+-- valueParser :: a -> Parser a
+-- valueParser a = P(\x -> Result x a)
+
 
 -- | Return a parser that produces at least one value from the given parser then
 -- continues producing a list of values from the given parser (to ultimately produce a non-empty list).
@@ -225,8 +237,8 @@ list =
 many1 ::
   Parser a
   -> Parser (List a)
-many1 =
-  error "todo"
+--  (a -> ParseResult b) -> ParseResult a -> ParseResult b -- bind / flatMap / (=<<) / (>>=)
+many1 p =  p >>= (\a -> (\x -> (a:.x)) <$> list p)
 
 -- | Return a parser that produces a character but fails if
 --
@@ -244,8 +256,14 @@ many1 =
 satisfy ::
   (Char -> Bool)
   -> Parser Char
-satisfy =
-  error "todo"
+
+-- bindParser :: (a -> Parser b) -> Parser a -> Parser b
+satisfy f = 
+  P(\x -> 
+    case parse character x of
+      r@(Result i a) -> if f a then r else parse failed i
+      _              -> Failed
+    )
 
 -- | Return a parser that produces the given character but fails if
 --
@@ -256,8 +274,8 @@ satisfy =
 -- /Tip:/ Use the @satisfy@ function.
 is ::
   Char -> Parser Char
-is =
-  error "todo"
+is c =
+  P(\x -> parse (satisfy (\a -> (c == a))) x)
 
 -- | Return a parser that produces a character between '0' and '9' but fails if
 --
@@ -269,7 +287,7 @@ is =
 digit ::
   Parser Char
 digit =
-  error "todo"
+  P(\x -> parse (satisfy (\i -> isDigit i)) x)
 
 -- | Return a parser that produces zero or a positive integer but fails if
 --
