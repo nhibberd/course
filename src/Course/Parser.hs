@@ -265,6 +265,10 @@ satisfy f =
       _              -> Failed
     )
 
+zzz :: (t -> Parser a) -> t -> Parser a
+zzz a b =
+  P(\x -> parse (a b) x)
+
 -- | Return a parser that produces the given character but fails if
 --
 --   * The input is empty.
@@ -300,7 +304,7 @@ digit =
 natural ::
   Parser Int
 natural =
-  error "todo"
+  P(\x -> parse ((\i -> valueParser (ord i)) `bindParser` digit) x)
 
 --
 -- | Return a parser that produces a space character but fails if
@@ -313,7 +317,7 @@ natural =
 space ::
   Parser Char
 space =
-  error "todo"
+  P(\x -> parse (satisfy isSpace) x)
 
 -- | Return a parser that produces one or more space characters
 -- (consuming until the first non-space) but fails if
@@ -326,7 +330,7 @@ space =
 spaces1 ::
   Parser Str
 spaces1 =
-  error "todo"
+  P(\x -> parse (many1 space) x)
 
 -- | Return a parser that produces a lower-case character but fails if
 --
@@ -338,7 +342,7 @@ spaces1 =
 lower ::
   Parser Char
 lower =
-  error "todo"
+  P(\x -> parse (satisfy isLower) x)
 
 -- | Return a parser that produces an upper-case character but fails if
 --
@@ -350,7 +354,7 @@ lower =
 upper ::
   Parser Char
 upper =
-  error "todo"
+  P(\x -> parse (satisfy isUpper) x)
 
 -- | Return a parser that produces an alpha character but fails if
 --
@@ -361,8 +365,8 @@ upper =
 -- /Tip:/ Use the @satisfy@ and @Data.Char.isAlpha@ functions.
 alpha ::
   Parser Char
-alpha =
-  error "todo"
+alpha = 
+  zzz satisfy isAlpha
 
 -- | Return a parser that sequences the given list of parsers by producing all their results
 -- but fails on the first failing parser of the list.
