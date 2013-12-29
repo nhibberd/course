@@ -354,7 +354,7 @@ lower =
 upper ::
   Parser Char
 upper =
-  P(\x -> parse (satisfy isUpper) x)
+  P(parse . satisfy $ isUpper)
 
 -- | Return a parser that produces an alpha character but fails if
 --
@@ -366,7 +366,7 @@ upper =
 alpha ::
   Parser Char
 alpha = 
-  zzz satisfy isAlpha
+  satisfy isAlpha
 
 -- | Return a parser that sequences the given list of parsers by producing all their results
 -- but fails on the first failing parser of the list.
