@@ -34,25 +34,33 @@ newtype State s a =
 -- >>> runState ((+1) <$> pure 0) 0
 -- (1,0)
 instance Functor (State s) where
-  (<$>) =
-      error "todo"
+  f <$> sa =
+    State (\s -> case (runState sa s) of
+              (a',s') -> (f a', s'))
+
+date Hole = Hole
 
 -- | Implement the `Apply` instance for `State s`.
 instance Apply (State s) where
-  (<*>) =
-    error "todo"
+  -- (<*>) :: f (a -> b) -> f a -> f b
+  f <*> sa =
+    State (\s -> case (runState sa s) of
+              (a', s') -> case (runState f s') of
+                (f', s'') -> (f' a', s''))
 
 -- | Implement the `Applicative` instance for `State s`.
 instance Applicative (State s) where
-  pure =
-    error "todo"
+  pure a = State (\s -> (a,s))
+
 
 -- | Implement the `Bind` instance for `State s`.
 -- >>> runState ((const $ put 2) =<< put 1) 0
 -- ((),2)
 instance Bind (State s) where
-  (=<<) =
-    error "todo"
+  -- (=<<) :: f a -> (a -> f b) -> f b
+  f =<< sa =
+    State (\s -> case (runState sa s) of
+              (a', s') -> runState (f a') s')
 
 instance Monad (State s) where
 
@@ -63,8 +71,9 @@ exec ::
   State s a
   -> s
   -> s
-exec =
-  error "todo"
+exec sa s =
+  case runState sa s of
+    (_, s') -> s'
 
 -- | Run the `State` seeded with `s` and retrieve the resulting value.
 --
@@ -73,8 +82,9 @@ eval ::
   State s a
   -> s
   -> a
-eval =
-  error "todo"
+eval sa s =
+  case runState sa s of
+    (a', _) -> a'
 
 -- | A `State` where the state also distributes into the produced value.
 --
@@ -83,7 +93,7 @@ eval =
 get ::
   State s s
 get =
-  error "todo"
+  State(\s -> (s,s))
 
 -- | A `State` where the resulting state is seeded with the given value.
 --
@@ -92,8 +102,8 @@ get =
 put ::
   s
   -> State s ()
-put =
-  error "todo"
+put s =
+  State (\_ -> ((), s))
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
@@ -114,8 +124,16 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM =
-  error "todo"
+findM _ Nil = pure Empty
+findM f (h:.t) =
+  f h >>= (\a -> case a of
+            True -> pure (Full h)
+            False -> findM f t)
+
+-- f Bool -> f (Optional a)
+-- f Bool -> Bool
+
+-- f a -> f (\a -> case)
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
