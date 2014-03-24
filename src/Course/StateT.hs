@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Course.StateT where
 
@@ -26,13 +27,17 @@ newtype StateT s f a =
 
 -- | Implement the `Functor` instance for @StateT s f@ given a @Functor f@.
 instance Functor f => Functor (StateT s f) where
-  (<$>) =
-    error "todo"
+  (<$>) f m =
+    StateT(\s -> (\(a',s') -> (f a', s')) <$> (runStateT m s))
 
 -- | Implement the `Apply` instance for @StateT s f@ given a @Applicative f@.
 instance Bind f => Apply (StateT s f) where
-  (<*>) =
-    error "todo"
+  -- :: f (a -> b) -> f a -> f b
+  (<*>) mf m =
+    StateT(\s -> (\(a', s') -> ((\(f, s'') -> (undefined) ) =<< runStateT mf s )) =<< (runStateT m s))
+
+
+
 
 -- | Implement the `Applicative` instance for @StateT s f@ given a @Applicative f@.
 instance Monad f => Applicative (StateT s f) where
