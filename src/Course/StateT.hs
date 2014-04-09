@@ -67,8 +67,8 @@ runState' ::
   State' s a
   -> s
   -> (a, s)
-runState' =
-  error "todo"
+runState' m s =
+  ((eval' m s), s)
 
 -- | Run the `StateT` seeded with `s` and retrieve the resulting state.
 execT ::
