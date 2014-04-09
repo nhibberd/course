@@ -59,8 +59,8 @@ type State' s a =
 state' ::
   (s -> (a, s))
   -> State' s a
-state' =
-  error "todo"
+state' f =
+  StateT(\s -> Id $ f s)
 
 -- | Provide an unwrapper for `State'` values.
 runState' ::
