@@ -34,21 +34,20 @@ instance Functor f => Functor (StateT s f) where
 instance Bind f => Apply (StateT s f) where
   -- :: f (a -> b) -> f a -> f b
   (<*>) mf m =
-    StateT(\s -> (\(a', s') -> ((\(f, s'') -> (undefined) ) =<< runStateT mf s )) =<< (runStateT m s))
-
-
-
+    StateT(\s -> runStateT (mf <*> m) s)
 
 -- | Implement the `Applicative` instance for @StateT s f@ given a @Applicative f@.
 instance Monad f => Applicative (StateT s f) where
-  pure =
-    error "todo"
+  pure sa =
+    StateT(\s -> pure $ (sa, s))
+
 
 -- | Implement the `Bind` instance for @StateT s f@ given a @Monad f@.
 -- Make sure the state value is passed through in `bind`.
 instance Monad f => Bind (StateT s f) where
-  (=<<) =
-    error "todo"
+  f =<< m =
+    StateT(\s -> (runStateT m s) >>= \(a,s') -> runStateT (f a) s')
+
 
 instance Monad f => Monad (StateT s f) where
 
