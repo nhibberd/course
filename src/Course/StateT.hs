@@ -76,16 +76,18 @@ execT ::
   StateT s f a
   -> s
   -> f s
-execT =
-  error "todo"
+execT st s =
+  (\(_,s') -> s') <$> runStateT st s
+
 
 -- | Run the `State` seeded with `s` and retrieve the resulting state.
 exec' ::
   State' s a
   -> s
   -> s
-exec' =
-  error "todo"
+exec' st s =
+  case (runState' st s) of
+    (_, s') -> s'
 
 -- | Run the `StateT` seeded with `s` and retrieve the resulting value.
 evalT ::
@@ -93,16 +95,17 @@ evalT ::
   StateT s f a
   -> s
   -> f a
-evalT =
-  error "todo"
+evalT st s =
+  (\(a,_) -> a) <$> runStateT st s
 
 -- | Run the `State` seeded with `s` and retrieve the resulting value.
 eval' ::
   State' s a
   -> s
   -> a
-eval' =
-  error "todo"
+eval' st s =
+  case (runState' st s) of
+    (a, _) -> a
 
 -- | A `StateT` where the state also distributes into the produced value.
 getT ::
